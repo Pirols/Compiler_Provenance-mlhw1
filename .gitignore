@@ -104,3 +104,8 @@ venv.bak/
 .mypy_cache/
 datasets/test_dataset_blind.jsonl
 datasets/train_dataset.jsonl
+.DS_Store
+ml_hw1_report/ml_hw1.aux
+ml_hw1_report/ml_hw1.synctex.gz
+ml_hw1_report/ml_hw1.toc
+.vscode/settings.json
