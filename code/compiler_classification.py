@@ -63,91 +63,91 @@ if __name__ == "__main__":
             splitted = line.split(',')
 
             train_full_mixed_features_x.append(list(int(x) for x in splitted[0].split(" ")))
-            train_full_mixed_features_y.append(int(splitted[2]))
+            train_full_mixed_features_y.append(splitted[2])
 
         for line in fd_train_full_no:
 
             splitted = line.split(',')
 
             train_full_number_occurrences_x.append(list(int(x) for x in splitted[0].split(" ")))
-            train_full_number_occurrences_y.append(int(splitted[2]))
+            train_full_number_occurrences_y.append(splitted[2])
 
         for line in fd_train_full_oi:
 
             splitted = line.split(',')
             
             train_full_ordered_instructions_x.append(list(int(x) for x in splitted[0].split(" ")))
-            train_full_ordered_instructions_y.append(int(splitted[2]))
+            train_full_ordered_instructions_y.append(splitted[2])
 
         for line in fd_train_partial_mf:
 
             splitted = line.split(',')
 
             train_partial_mixed_features_x.append(list(int(x) for x in splitted[0].split(" ")))
-            train_partial_mixed_features_y.append(int(splitted[2]))
+            train_partial_mixed_features_y.append(splitted[2])
 
         for line in fd_train_partial_no:
 
             splitted = line.split(',')
 
             train_partial_number_occurrences_x.append(list(int(x) for x in splitted[0].split(" ")))
-            train_partial_number_occurrences_y.append(int(splitted[2]))
+            train_partial_number_occurrences_y.append(splitted[2])
 
         for line in fd_train_partial_oi:
 
             splitted = line.split(',')
 
             train_partial_ordered_instructions_x.append(list(int(x) for x in splitted[0].split(" ")))
-            train_partial_ordered_instructions_y.append(int(splitted[2]))
+            train_partial_ordered_instructions_y.append(splitted[2])
 
         for line in fd_test_full_mf:
 
             splitted = line.split(',')
 
             test_full_mixed_features_x.append(list(int(x) for x in splitted[0].split(" ")))
-            test_full_mixed_features_y.append(int(splitted[2]))
+            test_full_mixed_features_y.append(splitted[2])
 
         for line in fd_test_full_no:
 
             splitted = line.split(',')
 
             test_full_number_occurrences_x.append(list(int(x) for x in splitted[0].split(" ")))
-            test_full_number_occurrences_y.append(int(splitted[2]))
+            test_full_number_occurrences_y.append(splitted[2])
 
         for line in fd_test_full_oi:
 
             splitted = line.split(',')
             
             test_full_ordered_instructions_x.append(list(int(x) for x in splitted[0].split(" ")))
-            test_full_ordered_instructions_y.append(int(splitted[2]))
+            test_full_ordered_instructions_y.append(splitted[2])
 
         for line in fd_test_partial_mf:
 
             splitted = line.split(',')
 
             test_partial_mixed_features_x.append(list(int(x) for x in splitted[0].split(" ")))
-            test_partial_mixed_features_y.append(int(splitted[2]))
+            test_partial_mixed_features_y.append(splitted[2])
 
         for line in fd_test_partial_no:
 
             splitted = line.split(',')
 
             test_partial_number_occurrences_x.append(list(int(x) for x in splitted[0].split(" ")))
-            test_partial_number_occurrences_y.append(int(splitted[2]))
+            test_partial_number_occurrences_y.append(splitted[2])
 
         for line in fd_test_partial_oi:
 
             splitted = line.split(',')
 
             test_partial_ordered_instructions_x.append(list(int(x) for x in splitted[0].split(" ")))
-            test_partial_ordered_instructions_y.append(int(splitted[2]))
+            test_partial_ordered_instructions_y.append(splitted[2])
             
     inp = input("which model do you want to try?:(nb for naive-bayes, svm for support vector machine)\n")
 
     if inp == 'nb':
 
         # full mf
-        gaussian_model_full_mf = naive_bayes.GaussianNB()
+        gaussian_model_full_mf = naive_bayes.MultinomialNB()
         gaussian_model_full_mf.fit(train_full_mixed_features_x, train_full_mixed_features_y)
 
         # printing results
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         print(classification_report(test_full_mixed_features_y, y_pred))
 
         # partial mf
-        gaussian_model_partial_mf = naive_bayes.GaussianNB()
+        gaussian_model_partial_mf = naive_bayes.MultinomialNB()
         gaussian_model_partial_mf.fit(train_partial_mixed_features_x, train_partial_mixed_features_y)
 
         # printing results
@@ -175,7 +175,7 @@ if __name__ == "__main__":
         print(classification_report(test_partial_mixed_features_y, y_pred))
 
         # full no
-        gaussian_model_full_no = naive_bayes.GaussianNB()
+        gaussian_model_full_no = naive_bayes.MultinomialNB()
         gaussian_model_full_no.fit(train_full_number_occurrences_x, train_full_number_occurrences_y)
 
         # printing results
@@ -189,7 +189,7 @@ if __name__ == "__main__":
         print(classification_report(test_full_number_occurrences_y, y_pred))
 
         # partial no
-        gaussian_model_partial_no = naive_bayes.GaussianNB()
+        gaussian_model_partial_no = naive_bayes.MultinomialNB()
         gaussian_model_partial_no.fit(train_partial_number_occurrences_x, train_partial_number_occurrences_y)
 
         # printing results
@@ -203,7 +203,7 @@ if __name__ == "__main__":
         print(classification_report(test_partial_number_occurrences_y, y_pred))
 
         # full oi
-        gaussian_model_full_oi = naive_bayes.GaussianNB()
+        gaussian_model_full_oi = naive_bayes.MultinomialNB()
         gaussian_model_full_oi.fit(train_full_ordered_instructions_x, train_full_ordered_instructions_y)
 
         # printing results
@@ -217,7 +217,7 @@ if __name__ == "__main__":
         print(classification_report(test_full_ordered_instructions_y, y_pred))
 
         # partial oi
-        gaussian_model_partial_oi = naive_bayes.GaussianNB()
+        gaussian_model_partial_oi = naive_bayes.MultinomialNB()
         gaussian_model_partial_oi.fit(train_partial_ordered_instructions_x, train_partial_ordered_instructions_y)
 
         # printing results
