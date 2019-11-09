@@ -50,17 +50,6 @@ def parse_jsonl_file(jsonl_path: str, training_output_path: str, testing_output_
 
         loaded_json = json.loads(json_string)
 
-        optimized_value = '0'
-        compiler_value = '0'
-
-        if loaded_json['opt'] == 'H':
-            optimized_value = '1'
-
-        if loaded_json['compiler'] == 'gcc':
-            compiler_value = '1'
-        elif loaded_json['compiler'] == 'icc':
-            compiler_value = '2'
-
         if features_style == 0:  #  number of occurrences
             current_features = np.zeros(len(mapping))
 
@@ -71,10 +60,10 @@ def parse_jsonl_file(jsonl_path: str, training_output_path: str, testing_output_
 
             if (np.random.uniform() < ratio):
                 training_file.write(' '.join(str(int(el)) for el in current_features) +
-                                    sep + optimized_value + sep + compiler_value + '\n')
+                                    sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
             else:
                 testing_file.write(' '.join(str(int(el)) for el in current_features) +
-                                   sep + optimized_value + sep + compiler_value + '\n')
+                                   sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
 
         elif features_style > 0:  # ordered instructions
             current_features = np.zeros(features_style)
@@ -90,10 +79,10 @@ def parse_jsonl_file(jsonl_path: str, training_output_path: str, testing_output_
                 if (i == features_style):
                     if (random_value < ratio):
                         training_file.write(' '.join(str(int(
-                            el)) for el in current_features) + sep + optimized_value + sep + compiler_value + '\n')
+                            el)) for el in current_features) + sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
                     else:
                         testing_file.write(' '.join(str(int(
-                            el)) for el in current_features) + sep + optimized_value + sep + compiler_value + '\n')
+                            el)) for el in current_features) + sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
 
                     current_features = np.zeros(features_style)
                     i = 0
@@ -101,10 +90,10 @@ def parse_jsonl_file(jsonl_path: str, training_output_path: str, testing_output_
             if (i != 0):
                 if (random_value < ratio):
                     training_file.write(' '.join(str(int(
-                        el)) for el in current_features) + sep + optimized_value + sep + compiler_value + '\n')
+                        el)) for el in current_features) + sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
                 else:
                     testing_file.write(' '.join(str(int(
-                        el)) for el in current_features) + sep + optimized_value + sep + compiler_value + '\n')
+                        el)) for el in current_features) + sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
 
         else:  # first abs(features_style) instructions, last abs(features_style) ones and the number of instructions in the function
 
@@ -126,10 +115,10 @@ def parse_jsonl_file(jsonl_path: str, training_output_path: str, testing_output_
 
             if (np.random.uniform() < ratio):
                 training_file.write(' '.join(str(int(el)) for el in current_features) +
-                                    sep + optimized_value + sep + compiler_value + '\n')
+                                    sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
             else:
                 testing_file.write(' '.join(str(int(el)) for el in current_features) +
-                                   sep + optimized_value + sep + compiler_value + '\n')
+                                   sep + loaded_json['opt'] + sep + loaded_json['compiler'] + '\n')
 
         ###
         # Actual operations end
@@ -328,7 +317,7 @@ if __name__ == "__main__":
     # number of minimum occurrences needed to actually assign a label to a mnemonic
     min_occurrences = 1000
     # length of fixed-length sequences for ordered instructions
-    fixed_length = 50
+    fixed_length = 250
     # number of instructions in the beginning and in the end to get from every function
     n_instructions = 5
 
