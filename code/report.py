@@ -171,5 +171,3 @@ if __name__ == "__main__":
 
     check_data()
     plot_length()
-    #plot_confusion_matrix(test_y_number_occurrences, y_pred, classes=np.array(['L','H']), normalize=True)
-    pass
