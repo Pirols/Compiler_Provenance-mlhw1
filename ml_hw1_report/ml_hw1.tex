@@ -1,0 +1,280 @@
+\documentclass[a4paper]{article}
+
+\usepackage[top=3cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{scrextend}
+\usepackage[hidelinks]{hyperref}
+\usepackage{textcomp}
+\usepackage{tipa}
+
+\graphicspath{ {./images/} }
+
+\title{Homework 1 - Machine Learning: Compiler Provenance}
+\author{Edoardo Piroli - 1711234}
+
+\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{1pt}
+
+\fancyfoot[C]{Report HW1 - Machine Learning}
+\fancyfoot[R]{\thepage}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Introduction}
+\subsection{Assignment}
+The assignment of the homework was to solve two classification problems:
+\begin{enumerate}
+\item \textbf{Compiler Provenance}: Given a function in assembly code determine whether it has been compiled using \textit{gcc}, \textit{icc} or \textit{clang};
+\item \textbf{Optimization Classification}: Given a function in assembly code determine whether it has been compiled using optimization \textit{'H'}, i.e. high, or \textit{'L'}, i.e. low.
+\end{enumerate}
+Furthermore the homework required to solve these problems using any supervised model but neural networks.
+
+\subsection{Dataset}
+The provided dataset was formed by 30'000 different functions labelled with both the compiler and the optimization setting used to compile them. In particular, the dataset resulted being:
+\begin{itemize}
+\item Formed by 10'000 instances per compiler;
+\item Formed by 12'076 instances highly optimized, hence labelled with \textit{'H'}, functions and 17'924 lowly optimized, hence labelled with \textit{'L'}, functions.
+\end{itemize}
+In summary, the dataset resulted being perfectly balanced for the first problem(Compiler Provenance) but not balanced for the second one(Optimization Classification).
+
+Every function in the dataset was expressed as a sequence of assembly instructions with the corresponding parameters.
+
+\begin{figure} [h!]
+  \includegraphics[scale=0.98]{lengths_plot.png}
+  \caption{Distribution of functions' lengths in the training dataset}
+  \label{fig: Figure 1}
+\end{figure}
+As represented in Figure 1, the functions contained in the dataset are, for the vast majority(76\%), sequences of less than 250 instructions.
+The plot is limited to functions long 2'000 or less instructions, however there are 289 longer ones; in particular the longest one is composed by 21'719 instructions.
+\section{Experimentation}
+\subsection{Models}
+For both the problems I have run several experiments training the following supervised models:
+\begin{itemize}
+\item \textbf{Naive-Bayes Classifier}: This method is usable in learning tasks where each instance is represented by a conjunction of attribute values. It is based on the very strong assumption that the probability of each sample belonging to one class is conditionally independent on all the other attributes given one of them. I have used the \textit{sklearn.naive\textunderscore bayes.MultinomialNB()} implementation;
+\item \textbf{Support Vector Machine}: SVMs are based on the idea of finding an hyperplane that best divides a dataset into 2 classes; it relies on the assumption that the samples are linearly separable using the proposed features. This concept is generalized to multiclass classification using the one-against-one approach\footnote{Further details: \href{https://pdfs.semanticscholar.org/a8f7/bb52ebfc291eb23b41ae6994b4865e166ae4.pdf}{https://pdfs.semanticscholar.org/a8f7/bb52ebfc291eb23b41ae6994b4865e166ae4.pdf}.}. I have used the \textit{sklearn.svm.SVC()} implementation.
+\end{itemize}
+
+\subsection{Feature extraction}
+As for the features, I have taken into account only the mnemonics of the instructions, discarding the arguments.
+In particular I have tried 3 different sets of features:
+\begin{enumerate}
+\item The number of occurrences of every mnemonic in the function;
+\item An ordered list of the mnemonics composing the function. In order to use this I had to impose a fixed-length; since the shape of the features must be fixed. In practice, I have splitted longer functions and added padding, as explained below, to shorter ones obtaining all fixed-length functions. I have chosen a fixed-length of 250, because as explained above most of the functions were shorter than that. Once all the functions had been splitted into fixed-length ones I have labelled them with the labels of the functions they were obtained from and trained on all of them. As for prediction on longer sequences I have simply used an average over the predictions of the fixed-length functions.
+\item A mixed one containing the length (in mnemonics) of the function along with its first and last 5 mnemonics;
+\end{enumerate}
+In order to map every mnemonic to one unique integer I have tried 2 different mappings:
+
+\begin{itemize}
+\item Full mapping: Mapping all the mnemonics in the training dataset;
+\item Partial mapping: Mapping all the mnemonics which occurred at least 1000 times in the dataset.
+\end{itemize}
+Both these mappings included 2 special tokens: '\textless UNK\textgreater ' used to handle mnemonics not occurring(or occurring less than 1000 times for the partial mapping) in the dataset and '\textless PAD\textgreater ' used to represent padding in short functions.  
+\subsection{Data}
+In order to be able to evaluate the presented models I have splitted the labelled dataset into 2 smaller ones:
+\begin{enumerate}
+\item The training dataset: containing 85\% of the functions;
+\item The testing dataset: containing the remaining 15\%.
+\end{enumerate}
+\newpage
+\section{Results}
+\subsection{Optimization Classification}
+\subsubsection{Naive-Bayes Classifier}
+\paragraph{Number of occurrences}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_nb_no_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_nb_no_partial.png}
+\end{figure}
+\end{itemize}
+
+\paragraph{Mixed Features}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_nb_mf_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_nb_mf_partial.png}
+\end{figure}
+\end{itemize}
+
+\paragraph{Ordered list of mnemonics}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_nb_oi_full.png}
+\end{figure}
+\newpage
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_nb_oi_partial.png}
+\end{figure}
+\end{itemize}
+\subsubsection{Support Vector Machine}
+\paragraph{Number of occurrences}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_svm_no_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_svm_no_partial.png}
+\end{figure}
+\end{itemize}
+
+\paragraph{Mixed Features}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_svm_mf_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_svm_mf_partial.png}
+\end{figure}
+\end{itemize}
+
+\newpage
+\paragraph{Ordered list of mnemonics}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_svm_oi_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{oc_svm_oi_partial.png}
+\end{figure}
+\end{itemize}
+\subsubsection{Comments}
+As expected SVM performs better, accuracy-wise, than Naive-bayes using the first(number of occurrences) and the third(ordered list of mnemonics) feature selection. In fact, in both cases, the assumption of conditional independence among different attributes is strongly wrong: one instruction by its own will not give much information about whether the whole function was compiled using a highly-optimized option or not, no matter if the ordering of such instructions is taken into account or not. On the other hand, the mixed feature approach seems to perform slightly better when used to train the naive-bayes model; this is probably due to the fact that this feature selection is smaller, hence granting less information to work with to the SVM model, while less-strongly negating the conditional-independence assumption of naive-bayes.
+In general, the best results, again accuracy-wise, are obtained by both models using the number of occurrences. However, also the SVM model doesn't perform optimally and this is due to the fact that the data is not easily linearly-separable given the proposed feature selections.
+
+One important aspect to take in consideration is the fact that the dataset is not balanced, e.g. one model that simply labels all the samples as 'L', i.e. lowly-optimized, would reach an accuracy of 59.75\%. This suggests that the accuracy is not a satisfactory indicator of the performance of the models, in fact, based on the application, we may want a higher precision or recall; although since I'm not really sure which one is to be preferred in this case, I have selected the best model taking into account the f1-score; which is the harmonic mean of the two. In this case, the naive-bayes classifier seems to be more robust to the unbalancedness of the dataset. 
+
+Finally, the usage of full and partial mapping doesn't provide huge shifts in performance of the models in most of the cases, but when it does it almost always works better when using the latter; moreover the models are lighter and faster to train when using it.
+\newpage
+\subsection{Compiler Provenance}
+\subsubsection{Naive-Bayes Classifier}
+\paragraph{Number of occurrences}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_nb_no_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_nb_no_partial.png}
+\end{figure}
+\end{itemize}
+
+\paragraph{Mixed Features}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_nb_mf_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_nb_mf_partial.png}
+\end{figure}
+\end{itemize}
+
+\newpage
+\paragraph{Ordered list of mnemonics}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_oi_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_nb_oi_partial.png}
+\end{figure}
+\end{itemize}
+
+\subsubsection{Support Vector Machine}
+\paragraph{Number of occurrences}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_no_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_no_partial.png}
+\end{figure}
+\end{itemize}
+
+\newpage
+\paragraph{Mixed Features}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_mf_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_mf_partial.png}
+\end{figure}
+\end{itemize}
+
+\paragraph{Ordered list of mnemonics}
+\begin{itemize}
+\item Full Mapping:
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_oi_full.png}
+\end{figure}
+\item Partial Mapping
+\begin{figure} [h!]
+  \includegraphics[scale=0.5]{cp_svm_oi_partial.png}
+\end{figure}
+\end{itemize}
+
+\newpage
+\subsubsection{Comments}
+For this problem, the Naive-bayes classifier performed better than SVM using the first(number of occurrences) and the second(mixed features) feature selections; this is probably due to the fact that the Multiniomal naive-bayes classifier generalizes better to multiclass than the SVM with the one-against-one approach does. 
+
+As in the optimization classification problem, the overall best feature selection resulted being the number of occurrences by a large margin. This is probably correlated to the fact that one compiler tends to use some particular instructions to a larger extent than the others.
+
+Also the different results of partial and full mapping reflected this aspect, in fact most models performed worse when using the partial model; probably due to the fact that some rare instructions are used almost exclusively by one of the compilers.
+
+Finally, it is interesting to note how the selection of the mixed features performed very poorly with respect to two different classes for the two models; in particular naive-bayes had a very bad f1-score w.r.t. the \textit{icc} compiler and SVM w.r.t. the \textit{gcc} compiler.
+
+\subsection{Best Model}
+In summary, the best model resulted being for both the problems the naive-bayes trained using the number of occurrences as features with the partial mapping.
+
+\section{Conclusions}
+The obtained results are far from ideal and further work is required to improve them, some possible approaches might be:
+\begin{enumerate}
+\item Explore different learning methods. In particular, I think RNNs would probably outperform both SVM and Naive-Bayes by a huge margin;
+\item Run GridSearch or RandomSearch to optimize the hyperparameters:
+\begin{itemize}
+\item Number of minimum occurrences of one mnemonic to be inserted in the mapping;
+\item Fixed-length of the sequences;
+\item Number of instructions to take at the start and at the end of the functions for the mixed approach.
+\end{itemize}
+\item Perform further feature engineering. This will require more knowledge on the domains of the problems.
+\end{enumerate}
+\end{document}
